@@ -18,7 +18,6 @@ set_target_properties(marketreplay_core PROPERTIES
 
 add_executable(marketreplay
         src/main.cpp
-        tests/version_test.cpp
 )
 
 target_link_libraries(marketreplay PRIVATE marketreplay_core)

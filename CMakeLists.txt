@@ -26,3 +26,16 @@ target_link_libraries(marketreplay PRIVATE marketreplay_core)
 set_target_properties(marketreplay PROPERTIES
         CXX_EXTENSIONS OFF
 )
+
+include(CTest)
+
+if(BUILD_TESTING)
+    add_test(
+            NAME marketreplay_cli_smoke
+            COMMAND marketreplay
+    )
+
+    set_tests_properties(marketreplay_cli_smoke PROPERTIES
+            PASS_REGULAR_EXPRESSION "MarketReplay 0\\.1\\.0 ready"
+    )
+endif()

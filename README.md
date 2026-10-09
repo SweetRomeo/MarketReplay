@@ -52,3 +52,16 @@ The scale defines the storage precision, not an instrument's tick size.
 
 Valid orders require a nonzero ID, a recognized side, a positive price,
 and a positive quantity.
+
+## Order book
+
+The single-instrument OrderBook stores orders by ID.
+
+Insertion returns Added, InvalidOrder, or DuplicateId.
+Validation happens before duplicate detection.
+Rejected insertions preserve existing orders and the book size.
+
+Lookup returns an optional copy of the order, or std::nullopt when absent.
+Changing the returned copy does not change the stored order.
+
+size() and empty() report the number of stored orders.

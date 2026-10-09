@@ -4,6 +4,7 @@ project(MarketReplay VERSION 0.1.0 LANGUAGES CXX)
 
 add_library(marketreplay_core STATIC
         src/version.cpp
+        src/order_book.cpp
 )
 
 target_include_directories(marketreplay_core PUBLIC
@@ -18,10 +19,11 @@ set_target_properties(marketreplay_core PROPERTIES
 
 add_executable(marketreplay
         src/main.cpp
-        include/marketreplay/order.hpp
 )
 
-target_link_libraries(marketreplay PRIVATE marketreplay_core)
+target_link_libraries(marketreplay PRIVATE
+        marketreplay_core
+)
 
 set_target_properties(marketreplay PROPERTIES
         CXX_EXTENSIONS OFF
@@ -50,8 +52,8 @@ if(BUILD_TESTING)
     add_executable(marketreplay_tests
             tests/version_test.cpp
             tests/order_test.cpp
+            tests/order_book_test.cpp
     )
-
     target_link_libraries(marketreplay_tests PRIVATE
             marketreplay_core
             GTest::gtest_main

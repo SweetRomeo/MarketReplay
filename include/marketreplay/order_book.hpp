@@ -46,6 +46,10 @@ namespace marketreplay
 
         [[nodiscard]] ReduceResult reduce(OrderId id, Quantity quantity);
 
+        [[nodiscard]] std::optional<Price> best_bid() const;
+
+        [[nodiscard]] std::optional<Price> best_ask() const;
+
     private:
         std::unordered_map<OrderId, Order> orders_;
     };

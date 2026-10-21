@@ -65,3 +65,22 @@ Lookup returns an optional copy of the order, or std::nullopt when absent.
 Changing the returned copy does not change the stored order.
 
 size() and empty() report the number of stored orders.
+
+## Order deletion and quantity reduction
+
+- `remove(id)` deletes an order and returns `RemoveResult::Removed`.
+  Missing IDs return `RemoveResult::NotFound`.
+- `reduce(id, quantity)` subtracts the given quantity from an order;
+  the argument is the amount to subtract, not the new remaining quantity.
+- ID lookup takes precedence over quantity validation. Missing IDs return
+  `ReduceResult::NotFound`, including when the quantity is zero.
+- For existing orders, zero reductions and reductions exceeding the remaining
+  quantity return `ReduceResult::InvalidQuantity` without changing state.
+- A smaller positive reduction returns `ReduceResult::Reduced` and preserves
+  the order's ID, side, and price.
+- A reduction equal to the remaining quantity deletes the order and returns
+  `ReduceResult::Removed`.
+- Deleted IDs can be added again. Unrelated orders remain unchanged.
+
+Quantity reduction provides shared behavior for future cancellation and
+execution events. It does not perform matching or calculate trades or P&L.

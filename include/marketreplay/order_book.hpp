@@ -6,8 +6,24 @@
 #include <optional>
 #include <unordered_map>
 
+
+
 namespace marketreplay
 {
+    enum class RemoveResult
+    {
+        Removed,
+        NotFound
+    };
+
+    enum class ReduceResult
+    {
+        Reduced,
+        Removed,
+        NotFound,
+        InvalidQuantity
+    };
+
     enum class AddResult
     {
         Added,
@@ -25,6 +41,10 @@ namespace marketreplay
         [[nodiscard]] std::size_t size() const noexcept;
 
         [[nodiscard]] bool empty() const noexcept;
+
+        [[nodiscard]] RemoveResult remove(OrderId id);
+
+        [[nodiscard]] ReduceResult reduce(OrderId id, Quantity quantity);
 
     private:
         std::unordered_map<OrderId, Order> orders_;

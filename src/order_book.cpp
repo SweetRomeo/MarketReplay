@@ -73,4 +73,36 @@ namespace marketreplay
     {
         return orders_.empty();
     }
+
+    std::optional<Price> OrderBook::best_bid() const
+    {
+        std::optional<Price> best;
+
+        for (const auto& [id, order] : orders_)
+        {
+            if (order.side == Side::Buy &&
+                (!best.has_value() || order.price > *best))
+            {
+                best = order.price;
+            }
+        }
+
+        return best;
+    }
+
+    std::optional<Price> OrderBook::best_ask() const
+    {
+        std::optional<Price> best;
+
+        for (const auto& [id, order] : orders_)
+        {
+            if (order.side == Side::Sell &&
+                (!best.has_value() || order.price < *best))
+            {
+                best = order.price;
+            }
+        }
+
+        return best;
+    }
 }

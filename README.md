@@ -84,3 +84,16 @@ size() and empty() report the number of stored orders.
 
 Quantity reduction provides shared behavior for future cancellation and
 execution events. It does not perform matching or calculate trades or P&L.
+
+## Best bid and best ask
+
+- `best_bid()` returns the highest stored buy price.
+- `best_ask()` returns the lowest stored sell price.
+- Both return `std::optional<Price>`; a side with no orders returns
+  `std::nullopt`.
+- Queries do not modify orders or book size.
+- Each query scans the stored orders: O(n) time and O(1) additional space.
+- Results reflect the current book after additions, removals, and reductions.
+- These queries return prices only; they do not select orders or execute trades.
+- Locked books (best bid equals best ask) and crossed books
+  (best bid exceeds best ask) remain permitted.

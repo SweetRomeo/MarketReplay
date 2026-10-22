@@ -97,3 +97,17 @@ execution events. It does not perform matching or calculate trades or P&L.
 - These queries return prices only; they do not select orders or execute trades.
 - Locked books (best bid equals best ask) and crossed books
   (best bid exceeds best ask) remain permitted.
+
+## In-memory order event replay
+
+- `OrderEvent` represents an `AddEvent`, `CancelEvent`, or `DeleteEvent`.
+- `apply_event(book, event)` applies one event and returns an `EventResult`
+  containing the corresponding AddResult, ReduceResult, or RemoveResult.
+- CancelEvent subtracts the specified quantity using OrderBook::reduce rules.
+- `replay_events(book, events)` applies events in input order to the existing
+  book and returns one result per event in the same order.
+- Rejected events do not stop replay. Earlier successful changes remain applied.
+- An empty event sequence returns an empty result vector without changing the book.
+- Identical event sequences applied to identical initial states produce identical
+  results and final book states.
+- Replay does not reset the book, parse files, simulate timing, or execute trades.

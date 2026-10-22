@@ -5,6 +5,7 @@ project(MarketReplay VERSION 0.1.0 LANGUAGES CXX)
 add_library(marketreplay_core STATIC
         src/version.cpp
         src/order_book.cpp
+        src/order_event.cpp
 )
 
 target_include_directories(marketreplay_core PUBLIC
@@ -53,6 +54,7 @@ if(BUILD_TESTING)
             tests/version_test.cpp
             tests/order_test.cpp
             tests/order_book_test.cpp
+            tests/order_event_test.cpp
     )
     target_link_libraries(marketreplay_tests PRIVATE
             marketreplay_core

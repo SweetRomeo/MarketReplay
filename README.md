@@ -5,8 +5,8 @@ tests and reproducible benchmarks.
 
 ## Current status
 
-Initial project infrastructure: core library, CLI, and automated tests.
-Market data replay and order book reconstruction are planned.
+Core library with a single-instrument order book, in-memory event replay,
+CSV event parsing, a startup CLI, and automated correctness tests.
 
 ## Build and test on Linux / WSL
 
@@ -30,7 +30,8 @@ Expected application output:
 MarketReplay 0.1.0 ready
 ```
 
-The test suite includes a core version unit test and a CLI smoke test.
+The test suite covers the order model, order book, event replay, CSV parsing,
+and a CLI smoke test.
 
 ## Build without tests
 
@@ -111,3 +112,42 @@ execution events. It does not perform matching or calculate trades or P&L.
 - Identical event sequences applied to identical initial states produce identical
   results and final book states.
 - Replay does not reset the book, parse files, simulate timing, or execute trades.
+
+## CSV order events
+
+`parse_order_events_csv(std::istream&)` returns either the complete ordered
+`std::vector<OrderEvent>` or `CsvParseError { line, reason }`. Error line numbers
+are 1-based physical lines, including blank lines. Invalid input returns no
+partial event sequence. Parsing never modifies an OrderBook.
+
+The first line must be exactly `type,id,side,price,quantity` (an initial UTF-8
+BOM is allowed). Each nonblank data row has exactly five comma-separated fields;
+ASCII spaces and tabs around data fields are trimmed. LF, CRLF, trailing empty
+fields, blank lines after the header, and a final line without newline are accepted.
+Header-only input returns an empty sequence; empty input is a missing-header error.
+
+```csv
+type,id,side,price,quantity
+ADD,1,BUY,1000000,50
+ADD,2,SELL,1050000,20
+CANCEL,1,,,10
+DELETE,2,,,
+```
+
+- Types and sides are case-sensitive: ADD/CANCEL/DELETE and BUY/SELL.
+- ADD requires all fields. CANCEL requires id and quantity with empty side/price.
+  DELETE requires id with empty side/price/quantity.
+- IDs are positive uint64 integers, prices positive int64 integers in existing
+  scaled units (1000000 means 100.0000), and quantities positive uint32 integers.
+  Signs, decimal points, numeric suffixes, zero, and overflow are rejected.
+- Quoting, embedded commas, comments, and multiline fields are unsupported.
+- Stream read failures are reported separately from successful EOF. Use the
+  default stream exception mask; explicitly enabled stream exceptions propagate.
+- Duplicate IDs, missing IDs, and excessive cancellations are state-dependent;
+  parsing accepts them and `replay_events` reports their results.
+
+`tests/fixtures/order_events.csv` is a reproducible mixed scenario, including
+state-dependent rejections, exercised by the parser/replay integration test.
+Open a file with `std::ifstream`, check it opened, parse, inspect the variant,
+and pass the successful event vector to `replay_events(book, events)`.
+The CLI currently only prints its startup message; CSV CLI arguments are not implemented.

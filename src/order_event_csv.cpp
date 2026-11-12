@@ -217,7 +217,7 @@ namespace marketreplay {
                         lineNumber,
                         "DELETE side, price and quantity must be empty"
                     };
-                    }
+                }
 
                 events.emplace_back(event);
                 continue;

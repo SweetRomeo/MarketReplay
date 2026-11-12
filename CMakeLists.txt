@@ -67,6 +67,10 @@ if(BUILD_TESTING)
             CXX_EXTENSIONS OFF
     )
 
+    target_compile_definitions(marketreplay_tests PRIVATE
+        MARKETREPLAY_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures"
+    )
+
     include(GoogleTest)
     gtest_discover_tests(marketreplay_tests)
 

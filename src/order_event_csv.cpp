@@ -172,9 +172,60 @@ namespace marketreplay {
                 continue;
             }
 
+            if (fields[0] == "CANCEL") {
+                CancelEvent event{};
+
+                if (!parse_positive_integer(fields[1], event.id)) {
+                    return CsvParseError{
+                        lineNumber,
+                        "Invalid CANCEL id"
+                    };
+                }
+
+                if (!fields[2].empty() || !fields[3].empty()) {
+                    return CsvParseError{
+                        lineNumber,
+                        "CANCEL side and price must be empty"
+                    };
+                }
+
+                if (!parse_positive_integer(fields[4], event.quantity)) {
+                    return CsvParseError{
+                        lineNumber,
+                        "Invalid CANCEL quantity"
+                    };
+                }
+
+                events.emplace_back(event);
+                continue;
+            }
+
+            if (fields[0] == "DELETE") {
+                DeleteEvent event{};
+
+                if (!parse_positive_integer(fields[1], event.id)) {
+                    return CsvParseError{
+                        lineNumber,
+                        "Invalid DELETE id"
+                    };
+                }
+
+                if (!fields[2].empty()
+                    || !fields[3].empty()
+                    || !fields[4].empty()) {
+                    return CsvParseError{
+                        lineNumber,
+                        "DELETE side, price and quantity must be empty"
+                    };
+                    }
+
+                events.emplace_back(event);
+                continue;
+            }
+
             return CsvParseError{
                 lineNumber,
-                "Event parsing not implemented yet"
+                "Unknown event type"
             };
         }
 

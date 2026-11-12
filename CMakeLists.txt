@@ -6,6 +6,7 @@ add_library(marketreplay_core STATIC
         src/version.cpp
         src/order_book.cpp
         src/order_event.cpp
+        src/order_event_csv.cpp
 )
 
 target_include_directories(marketreplay_core PUBLIC
@@ -55,6 +56,7 @@ if(BUILD_TESTING)
             tests/order_test.cpp
             tests/order_book_test.cpp
             tests/order_event_test.cpp
+            tests/order_event_csv_test.cpp
     )
     target_link_libraries(marketreplay_tests PRIVATE
             marketreplay_core
@@ -63,6 +65,10 @@ if(BUILD_TESTING)
 
     set_target_properties(marketreplay_tests PROPERTIES
             CXX_EXTENSIONS OFF
+    )
+
+    target_compile_definitions(marketreplay_tests PRIVATE
+        MARKETREPLAY_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures"
     )
 
     include(GoogleTest)

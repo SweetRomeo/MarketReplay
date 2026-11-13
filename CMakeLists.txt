@@ -82,4 +82,13 @@ if(BUILD_TESTING)
     set_tests_properties(marketreplay_cli_smoke PROPERTIES
             PASS_REGULAR_EXPRESSION "MarketReplay 0\\.1\\.0 ready"
     )
+    foreach(case IN ITEMS sample invalid_args missing_argument extra_argument missing_file malformed header_only empty_file buy_only removed_all)
+        add_test(NAME marketreplay_cli_${case}
+            COMMAND "${CMAKE_COMMAND}"
+                "-DPROGRAM=$<TARGET_FILE:marketreplay>"
+                "-DCASE=${case}"
+                "-DFIXTURE=${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/order_events.csv"
+                "-DWORK=${CMAKE_CURRENT_BINARY_DIR}/cli-tests/${case}"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_test.cmake")
+    endforeach()
 endif()

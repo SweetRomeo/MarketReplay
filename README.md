@@ -150,4 +150,52 @@ DELETE,2,,,
 state-dependent rejections, exercised by the parser/replay integration test.
 Open a file with `std::ifstream`, check it opened, parse, inspect the variant,
 and pass the successful event vector to `replay_events(book, events)`.
-The CLI currently only prints its startup message; CSV CLI arguments are not implemented.
+The CLI supports CSV replay as described below.
+
+## Replay a CSV from the CLI
+
+Run from the repository root (quote file paths containing spaces):
+
+```bash
+./cmake-build-debug/marketreplay replay tests/fixtures/order_events.csv
+```
+
+Windows / Visual Studio:
+
+```powershell
+cmake -S . -B build -DBUILD_TESTING=ON
+cmake --build build --config Debug
+.\build\Debug\marketreplay.exe replay tests/fixtures/order_events.csv
+ctest --test-dir build -C Debug --output-on-failure
+```
+
+Expected sample output:
+
+```text
+Events: 8
+Accepted: 5
+Rejected: 3
+Remaining orders: 2
+Prices: internal scaled integer units (scale 10000)
+Best bid: 1000000
+Best ask: 1050000
+```
+
+Every replay starts with an empty book. The complete CSV must parse successfully
+before any events are applied. Accepted counts successful additions, reductions
+(including exact cancellations that remove orders), and deletions. Duplicate IDs,
+missing IDs and excessive cancellations count as rejected events; replay continues.
+The sample intentionally contains three such rejections.
+
+An empty book displays `N/A` for both prices; a missing side displays `N/A` for
+that side. Prices are scaled integers, not decimal currency amounts.
+
+Exit status is 0 for successful replay, including state-dependent rejections,
+or for the existing no-argument startup message. Invalid arguments, file-open
+failures and CSV errors return 1 and print an error to stderr with no summary
+on stdout. CSV errors include the 1-based physical line number and reason.
+Usage is exactly `marketreplay replay <csv-path>`.
+
+CTest invokes the actual CLI to check summaries, exit codes and separate output
+streams for valid, malformed, missing, empty and header-only files, argument
+errors, one-sided books and removal of every order. These tests require no Python.

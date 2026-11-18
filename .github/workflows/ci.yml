@@ -1,0 +1,47 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: Linux GCC
+          - os: windows-latest
+            name: Windows MSVC
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Configure with tests
+        run: cmake -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build with tests
+        run: cmake --build build --config Debug --parallel 2
+
+      - name: Run tests
+        run: ctest --test-dir build -C Debug --output-on-failure --no-tests=error
+
+      - name: Configure without tests
+        run: cmake -S . -B build-no-tests -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build without tests
+        run: cmake --build build-no-tests --config Release --parallel 2

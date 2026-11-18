@@ -199,3 +199,14 @@ Usage is exactly `marketreplay replay <csv-path>`.
 CTest invokes the actual CLI to check summaries, exit codes and separate output
 streams for valid, malformed, missing, empty and header-only files, argument
 errors, one-sided books and removal of every order. These tests require no Python.
+
+## Continuous integration
+
+GitHub Actions builds and tests pull requests targeting `main` and pushes
+to `main` on Linux/GCC and Windows/MSVC.
+
+Both jobs run the complete CTest suite, including unit tests, CLI integration
+tests and the startup smoke test. A separate Release configuration also
+verifies that the application builds with `BUILD_TESTING=OFF`.
+
+Configuration, build or test failures fail the corresponding CI job.

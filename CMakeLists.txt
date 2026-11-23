@@ -31,6 +31,17 @@ set_target_properties(marketreplay PROPERTIES
         CXX_EXTENSIONS OFF
 )
 
+add_executable(marketreplay_benchmark benchmarks/replay_benchmark.cpp)
+target_link_libraries(marketreplay_benchmark PRIVATE marketreplay_core)
+set_target_properties(marketreplay_benchmark PROPERTIES CXX_EXTENSIONS OFF)
+
+add_custom_target(run_benchmark
+        COMMAND $<TARGET_FILE:marketreplay_benchmark>
+        DEPENDS marketreplay_benchmark
+        USES_TERMINAL
+        VERBATIM
+)
+
 include(CTest)
 
 if(BUILD_TESTING)
@@ -73,6 +84,8 @@ if(BUILD_TESTING)
 
     include(GoogleTest)
     gtest_discover_tests(marketreplay_tests)
+
+    add_test(NAME marketreplay_benchmark_correctness COMMAND marketreplay_benchmark)
 
     add_test(
             NAME marketreplay_cli_smoke

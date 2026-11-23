@@ -6,7 +6,7 @@ tests and reproducible benchmarks.
 ## Current status
 
 Core library with a single-instrument order book, in-memory event replay,
-CSV event parsing, a startup CLI, and automated correctness tests.
+CSV replay from the CLI, automated correctness tests, and a replay benchmark.
 
 ## Build and test on Linux / WSL
 
@@ -199,6 +199,32 @@ Usage is exactly `marketreplay replay <csv-path>`.
 CTest invokes the actual CLI to check summaries, exit codes and separate output
 streams for valid, malformed, missing, empty and header-only files, argument
 errors, one-sided books and removal of every order. These tests require no Python.
+
+## In-memory replay benchmark
+
+From the repository root, configure a Release build once. This works on Linux,
+WSL and Windows with Visual Studio and uses no external benchmark dependencies.
+
+```sh
+cmake -S . -B build-bench -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+```
+
+Build and run the benchmark with one command each time:
+
+```sh
+cmake --build build-bench --config Release --target run_benchmark
+```
+
+Each replay starts with an empty book. The fixed workload adds 50,000 orders,
+reduces the 25,000 odd-numbered buy orders and deletes the 25,000 even-numbered
+sell orders. Each remaining buy holds 35 units. The benchmark verifies every
+event result and the final book after each run.
+
+After one warm-up, the program reports median elapsed milliseconds across five
+replays and the corresponding events per second. The timer covers the call to
+`replay_events`, including construction of its result vector. Input generation,
+CSV parsing, result validation and console output are outside the measurement.
+Compare runs using the same build configuration, compiler and machine.
 
 ## Continuous integration
 
